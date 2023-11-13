@@ -8,15 +8,22 @@
 		
 		<div id="serviceEditor">
 
-			<div id="serviceRows">
-
-			</div>
+			<table id="serviceRows">
+				<tr>
+					<th>Tag</th>
+					<th>Name</th>
+					<th>Duration</th>
+					<th>Actions</th>
+				</tr>
+			</table>
 
 			<template id="serviceTemplate">
-				<div class="serviceRow">
-					<div class="serviceName"></div>
-					<input type="button" value="delete" class="delete" />
-				</div>
+				<tr class="serviceRow">
+					<td>tag</td>
+					<td class="serviceName">name</td>
+					<td>123</td>
+					<td><input type="button" value="delete" class="delete" /></td>
+				</tr>
 			</template>
 
 			<div id="newService">
