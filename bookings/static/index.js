@@ -24,6 +24,7 @@ staffEdit.addEventListener ("click", () => {
 let services = document.querySelector("#launchServiceEditor")
 services.addEventListener('click', () => {
 	body.replaceChildren()
+	body.textContent = "Loading"
 	fetch ("./serviceEditor.html")
 		.then (resp => resp.text())
 		.then (text => {
