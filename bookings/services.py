@@ -30,3 +30,14 @@ def post_new_service():
 		flask.abort (409)
 	return j["tag"]
 
+@bp.route("/<tag>")
+def get_service (tag):
+	db = get_db()
+	cur = db.execute ("SELECT * FROM service WHERE tag = ? LIMIT 2", (tag,))
+	# LIMIT 2 is enough for us to assert fail if there are more than 1
+	rows = list (map (lambda x: dict(x), cur.fetchall()))
+	num = len(rows)
+	if (num == 0):
+		flask.abort (404)
+	assert (len(rows) == 1) # Should be unique in the database
+	return rows[0]

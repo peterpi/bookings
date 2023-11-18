@@ -3,32 +3,44 @@ export class ServiceEditor
 
 
 
-	constructor (root) {
+	constructor (root, divStack) {
 		if (!root)
 			throw new Error ()
 		this.root = root
 
-		root.querySelector("#newService > .submit").addEventListener('click', () => {
-			this.newService()
-		})
-
 		fetch ("/services")
 			.then (resp => resp.json())
-			.then (services => this.populate(services))
+			.then (services => this.populate(services, divStack))
 	}
 
-	populate (services)
+	populate (services, divStack)
 	{
-		let rows = this.root.querySelector("#serviceRows")
-		let template = this.root.querySelector("template#serviceTemplate")
+		let template = this.root.querySelector("template#servicesList")
+		let servicesList = template.content.cloneNode(true)
+		let table = servicesList.querySelector("table")
+		let rowTemplate = servicesList.querySelector("template#serviceTemplate")
 
 		for (const s of services) {
-			const row = template.content.cloneNode(true)
+			const row = rowTemplate.content.cloneNode(true)
+			const tag = s.tag
 			const serviceName = s.name
-			row.querySelector(".serviceName").textContent = serviceName
-			row.querySelector(".delete").addEventListener('click', () => this.deleteService (serviceName))
-			rows.appendChild (row)
+			row.querySelector(".serviceName > input").value = serviceName
+			row.querySelector(".serviceDelete").addEventListener('click', () => this.deleteService (serviceName))
+			const edit = row.querySelector("input.serviceEdit")
+			edit.addEventListener('click', () => this.editService (tag, divStack))
+			table.appendChild (row)
 		}
+
+		servicesList.querySelector("#newService > .submit").addEventListener('click', () => {
+			this.newService()
+		})
+		divStack.push(servicesList)
+	}
+
+	async editService (tag, divStack) {
+		console.log (`"Edit ${tag}`)
+		const service = await fetch (`/services/${tag}`).then (resp => resp.json())
+		console.log (`Hello ${service}`)
 	}
 
 	async newService () {

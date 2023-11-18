@@ -1,5 +1,6 @@
 
 
+import { DivStack } from "./modules/DivStack.mjs"
 import { ServiceEditor } from "./modules/ServiceEditor.mjs"
 import {StaffEditor} from "./modules/staffedit.mjs"
 
@@ -7,6 +8,8 @@ import {StaffEditor} from "./modules/staffedit.mjs"
 var body = document.querySelector("#body")
 
 var staffEdit = document.querySelector("#top > #launchStaffEditor")
+
+const divStack = new DivStack (body)
 
 staffEdit.addEventListener ("click", () => {
 	console.log("Hello")
@@ -16,8 +19,8 @@ staffEdit.addEventListener ("click", () => {
 		.then (text => {
 			var editorDoc = new DOMParser().parseFromString(text, "text/html")
 			var editor = editorDoc.querySelector("#staffEditor")
-			body.replaceChildren (editor)
 			new StaffEditor (editor)
+			divStack.push(editor)
 		})
 })
 
@@ -29,10 +32,10 @@ services.addEventListener('click', () => {
 		.then (resp => resp.text())
 		.then (text => {
 			var doc = new DOMParser().parseFromString(text, 'text/html')
-			var editor = doc.querySelector("div")
+			var editor = doc.querySelector("body > div")
 			if (!editor)
 				throw new Error ("Failed to locate editor.")
-			body.replaceChildren(editor)
-			new ServiceEditor (editor)
+				new ServiceEditor (editor, divStack)
+			divStack.push(editor)
 		})
 })
