@@ -1,67 +1,51 @@
-export class ServiceEditor
-{
 
 
 
-	constructor (root, divStack) {
-		if (!root)
-			throw new Error ()
-		this.root = root
+export class ServiceEditor{
 
-		fetch ("/services")
-			.then (resp => resp.json())
-			.then (services => this.populate(services, divStack))
-	}
-
-	populate (services, divStack)
+	constructor (tag, root, divstack)
 	{
-		let template = this.root.querySelector("template#servicesList")
-		let servicesList = template.content.cloneNode(true)
-		let table = servicesList.querySelector("table")
-		let rowTemplate = servicesList.querySelector("template#serviceTemplate")
+		this.tag = tag
+		this.root = root
+		fetch (`/services/${tag}`)
+			.then (resp => resp.json())
+			.then (service => this.populate(service, root, divstack))
+	}
 
-		for (const s of services) {
-			const row = rowTemplate.content.cloneNode(true)
-			const tag = s.tag
-			const serviceName = s.name
-			row.querySelector(".serviceName > input").value = serviceName
-			row.querySelector(".serviceDelete").addEventListener('click', () => this.deleteService (serviceName))
-			const edit = row.querySelector("input.serviceEdit")
-			edit.addEventListener('click', () => this.editService (tag, divStack))
-			table.appendChild (row)
-		}
+	populate (service, root, divstack) {
+		this.name = root.querySelector("#inputServiceName > input")
+		this.duration = root.querySelector("#inputServiceDuration > input")
 
-		servicesList.querySelector("#newService > .submit").addEventListener('click', () => {
-			this.newService()
+		const onChange = () => this.putAndRefresh (service.tag)
+
+		this.name.addEventListener("change", onChange)
+		this.duration.addEventListener ("change", onChange)
+
+		this.refresh (service)
+
+		root.querySelector("#serviceEditorBack").addEventListener('click', () => {
+			divstack.pop()
 		})
-		divStack.push(servicesList)
+		divstack.push(root)
 	}
 
-	async editService (tag, divStack) {
-		console.log (`"Edit ${tag}`)
-		const service = await fetch (`/services/${tag}`).then (resp => resp.json())
-		console.log (`Hello ${service}`)
-	}
-
-	async newService () {
-		console.log ("New")
-		const details = this.root.querySelector("#newService")
-		const tag = details.querySelector("#newServiceTag").value
-		const name = details.querySelector("#newServiceName").value
-		const duration = details.querySelector("#newServiceDuration").value
+	async putAndRefresh () {
+		const name = this.name.value
+		const duration = this.duration.value
 		const j = {
-			tag: tag,
-			name: name,
-			duration: duration
+			"name" : this.name.value,
+			"duration" : this.duration.value
 		}
-		const resp = await fetch ("/services", {
-			method: "POST",
-			headers : {
-				'Content-Type' : 'application/json'
-			},
-			body: JSON.stringify(j)
-		})
+		const service = await fetch (`/services/${this.tag}`, {
+			"method" : "PUT",
+			headers: {"Content-Type": "application/json"},
+			body: JSON.stringify(j),
+		}).then (resp => resp.json())
+		this.refresh (service)
 	}
 
-
+	refresh (service) {
+		this.name.value = service.name
+		this.duration.value = service.duration
+	}
 }

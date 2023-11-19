@@ -41,3 +41,29 @@ def get_service (tag):
 		flask.abort (404)
 	assert (len(rows) == 1) # Should be unique in the database
 	return rows[0]
+
+@bp.route("/<tag>", methods=["PUT"])
+def put_service(tag):
+	j = request.json
+	args = dict (j)
+	args["tag"] = tag
+	db = get_db()
+	try :
+		cur = db.execute (
+			"UPDATE service SET name = :name, duration = :duration WHERE tag = :tag RETURNING *",
+			args)
+		result = list(map (lambda x: dict(x), cur.fetchall()))
+		# 0 rows returned: 404 not found.
+		# 1 rows returned: 200 OK
+		# >1 rows returned:  Integrity error.
+		count = len (result)
+		if count == 0:
+			flask.abort (404)
+		if count > 1:
+			raise Exception (">1 rows with same tag.")
+		db.commit()
+		return result[0]
+	except sqlite3.Error:
+		flask.abort(400)
+
+	

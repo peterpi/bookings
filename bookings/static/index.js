@@ -1,7 +1,7 @@
 
 
 import { DivStack } from "./modules/DivStack.mjs"
-import { ServiceEditor } from "./modules/ServiceEditor.mjs"
+import { ServiceList } from "./modules/ServiceList.mjs"
 import {StaffEditor} from "./modules/staffedit.mjs"
 
 
@@ -26,16 +26,13 @@ staffEdit.addEventListener ("click", () => {
 
 let services = document.querySelector("#launchServiceEditor")
 services.addEventListener('click', () => {
-	body.replaceChildren()
-	body.textContent = "Loading"
-	fetch ("./serviceEditor.html")
+	fetch ("./serviceList.html")
 		.then (resp => resp.text())
 		.then (text => {
 			var doc = new DOMParser().parseFromString(text, 'text/html')
-			var editor = doc.querySelector("body > div")
-			if (!editor)
+			var serviceList = doc.querySelector("#servicesList")
+			if (!serviceList)
 				throw new Error ("Failed to locate editor.")
-				new ServiceEditor (editor, divStack)
-			divStack.push(editor)
+			new ServiceList (serviceList, divStack)
 		})
 })
