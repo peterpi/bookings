@@ -27,5 +27,8 @@ def create_app (test_config = None):
 	from. import services
 	app.register_blueprint(services.bp)
 
+	from . import availability
+	app.register_blueprint(availability.bp)
+
 	return app
 
